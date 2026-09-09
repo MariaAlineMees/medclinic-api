@@ -1,6 +1,6 @@
 import { userRepository } from "../repositories/UserRepository";
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
+import { comparePassword } from "../utils/hash"; 
+import { generateToken } from "../utils/jwt"; 
 
 export class AuthService {
     async login(email: string, senha: string) {
@@ -9,21 +9,16 @@ export class AuthService {
         }
 
         const user = await userRepository.findOneBy({ email });
-        
         if (!user) {
             throw new Error("Credenciais inválidas.");
         }
 
-        const passwordMatch = await bcrypt.compare(senha, user.senha);
+        const passwordMatch = await comparePassword(senha, user.senha); 
         if (!passwordMatch) {
             throw new Error("Credenciais inválidas.");
         }
 
-        const token = jwt.sign(
-            { id: user.id, perfil: user.perfil },
-            process.env.JWT_SECRET as string,
-            { expiresIn: "1d" }
-        );
+        const token = generateToken({ id: user.id, perfil: user.perfil }); 
 
         return {
             user: {

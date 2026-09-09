@@ -1,25 +1,24 @@
 import { userRepository } from "../repositories/UserRepository";
 import { User } from "../entities/User";
-import bcrypt from "bcrypt";
+import { hashPassword } from "../utils/hash";
 
 export class UserService {
     async create({ nome, email, senha, perfil }: Partial<User>) {
         if (!nome || !email || !senha) {
-            throw new Error("Nome, e-mail e senha são obrigatórios."); // Vai ser tratado pelo nosso futuro Error Middleware
+            throw new Error("Nome, e-mail e senha são obrigatórios.");
         }
 
         const userExists = await userRepository.findOneBy({ email });
-        
         if (userExists) {
             throw new Error("E-mail já cadastrado.");
         }
 
-        const hashPassword = await bcrypt.hash(senha, 10);
+        const hashedPassword = await hashPassword(senha);
 
         const newUser = userRepository.create({
             nome,
             email,
-            senha: hashPassword,
+            senha: hashedPassword,
             perfil
         });
 
