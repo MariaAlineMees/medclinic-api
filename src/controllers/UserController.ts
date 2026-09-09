@@ -18,4 +18,8 @@ export class UserController {
     async getMe(req: AuthRequest, res: Response) {
         return res.status(200).json(req.user);
     }
+
+    async adminPing(req: AuthRequest, res: Response) {
+        return res.status(200).json({ message: "Pong! Você tem acesso de Administrador." });
+    }
 }
